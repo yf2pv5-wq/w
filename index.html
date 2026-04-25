@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Marketplace</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --gradient-colors: linear-gradient(270deg, #0f0c29, #302b63, #24243e);
+      --text-color: #fff;
+      --glass-bg: rgba(255, 255, 255, 0.07);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --button-bg: rgba(255, 255, 255, 0.1);
+      --button-hover: rgba(255, 255, 255, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Rubik', sans-serif;
+      background: var(--gradient-colors);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+      color: var(--text-color);
+      overflow-x: hidden;
+      padding: 20px;
+      min-height: 100vh;
+      position: relative;
+    }
+    @keyframes gradientShift {
+      0%,100% { background-position: 0% 50%; }
+      50%     { background-position: 100% 50%; }
+    }
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      position: relative;
+      z-index: 2;
+    }
+    h1 { font-size: 2.5em; margin-bottom: 15px; text-shadow: 0 0 12px rgba(255,255,255,0.3); }
+    
+    /* Updated Search and Action Buttons - REMOVED action-wrapper but kept button sizes */
+    .search-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+    
+    .input-group { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 12px; 
+      width: 100%; 
+    }
+    
+    .search-wrapper {
+      display: flex; 
+      background: var(--glass-bg); 
+      border: 1px solid var(--glass-border);
+      border-radius: 8px; 
+      padding: 5px; 
+      transition: transform 0.3s ease;
+      height: 38px; 
+      width: 100%;
+    }
+    
+    .search-wrapper:hover { 
+      transform: translateY(-2px); 
+    }
+    
+    .search-wrapper input {
+      flex-grow: 1; 
+      padding: 6px 12px; 
+      font-size: 0.88em;
+      border: none; 
+      background: transparent; 
+      color: var(--text-color);
+    }
+    
+    .search-wrapper button, .action-btn {
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      background: var(--button-bg); 
+      color: var(--text-color); 
+      border: none;
+      border-radius: 6px; 
+      cursor: pointer; 
+      transition: all 0.3s ease;
+      height: 100%;
+      font-size: 0.88em;
+      padding: 0 12px;
+    }
+    
+    .action-btn {
+      flex: 1;
+      gap: 8px;
+      height: 38px; /* Keep the same height */
+    }
+    
+    .search-wrapper button {
+      width: 36px;
+      flex-shrink: 0;
+    }
+    
+    .search-wrapper button:hover, .action-btn:hover {
+      background: var(--button-hover); 
+      transform: scale(1.05);
+    }
+    
+    .action-btn.discord {
+      max-width: 36px;
+      flex: 0 0 36px;
+      padding: 0;
+    }
+    
+    /* Action buttons container - SIMPLE CONTAINER, NO STYLING */
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+      width: 100%;
+    }
+    
+    /* Category buttons with settings */
+    .category-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      position: relative;
+      flex-wrap: nowrap;
+    }
+    .category-buttons { 
+      display: flex; 
+      gap: 10px; 
+      flex-wrap: nowrap;
+    }
+    .category-buttons button {
+      width: 36px; height: 36px; background: var(--button-bg);
+      border: 1px solid var(--glass-border); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1em; color: var(--text-color); cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    .category-buttons button:hover { 
+      background: var(--button-hover); 
+      transform: scale(1.05); 
+    }
+    .category-buttons button.active { 
+      background: var(--button-hover); 
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+    
+    /* Settings and dropdown */
+    .settings-wrapper {
+      position: relative;
+    }
+    .settings-btn {
+      width: 36px; height: 36px; background: var(--button-bg);
+      border: 1px solid var(--glass-border); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1em; color: var(--text-color); cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      margin-left: 0;
+    }
+    .settings-btn:hover { 
+      background: var(--button-hover); 
+      transform: scale(1.05); 
+    }
+    .settings-btn.active {
+      background: var(--button-hover);
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+    .sort-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 10px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 8px 0;
+      min-width: 180px;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+    .sort-dropdown.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .sort-option {
+      padding: 10px 15px;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9em;
+    }
+    .sort-option:hover {
+      background: var(--button-hover);
+    }
+    .sort-option.active {
+      background: var(--button-hover);
+      color: #a3d5ff;
+    }
+    .sort-option i {
+      font-size: 0.9em;
+      width: 16px;
+      text-align: center;
+    }
+
+    /* Item layout */
+    .grid-container {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px; max-width: 1200px; margin: 35px auto 0; padding: 0 20px;
+    }
+    .item {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease; display: flex; flex-direction: column;
+      align-items: center; text-align: center; contain: layout;
+      cursor: pointer;
+      position: relative;
+    }
+    .item:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+    .item-content { 
+      text-decoration: none; color: inherit; width: 100%; 
+      display: flex; flex-direction: column; align-items: center; 
+    }
+    .item h2 {
+      font-size: 1em; margin: 12px 0 4px 0; color: var(--text-color);
+      text-align: center; font-weight: 500;
+      order: 1;
+    }
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      order: 2;
+      width: 100%;
+    }
+    .subtitle {
+      text-align: center; font-size: 0.85em; color: #ccc;
+      font-weight: 400;
+    }
+    .download-count {
+      display: none;
+      font-size: 0.75em; color: #aaa;
+      text-align: center;
+    }
+    .download-count.show {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .img-wrapper {
+      width: 100%; aspect-ratio: 16/9; overflow: hidden;
+      order: 3;
+    }
+    .img-wrapper img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .item:hover img { transform: scale(1.05); }
+
+    /* Overlay Styles */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .download-modal {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+    
+    .overlay.active .download-modal {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .modal-title {
+      font-size: 1.4em;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+    
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5em;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .close-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .modal-image {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    
+    .modal-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .modal-type {
+      text-align: center;
+      font-size: 0.9em;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+    
+    .download-links, .form-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .download-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--button-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text-color);
+    }
+    
+    .download-link:hover {
+      background: var(--button-hover);
+      transform: translateY(-2px);
+    }
+    
+    .link-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .link-icon {
+      font-size: 1.2em;
+    }
+    
+    .link-arrow {
+      font-size: 0.9em;
+      opacity: 0.7;
+    }
+    
+    /* Form styles for request/report modals */
+    .modal {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+    
+    .overlay.active .modal {
+      transform: translateY(0);
+    }
+    
+    .modal-text {
+      margin-bottom: 20px;
+      color: #ccc;
+      text-align: center;
+      line-height: 1.5;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 15px;
+      background: var(--button-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text-color);
+      font-size: 0.9em;
+      margin-bottom: 15px;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .form-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--button-bg);
+      border: none;
+      border-radius: 8px;
+      color: var(--text-color);
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .form-btn:hover {
+      background: var(--button-hover);
+      transform: translateY(-2px);
+    }
+    
+    .form-btn.sending {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* Notification Overlay Styles */
+    .notification-modal {
+      max-width: 400px;
+      text-align: center;
+    }
+    
+    .notification-icon {
+      font-size: 3em;
+      margin-bottom: 15px;
+    }
+    
+    .notification-icon.success {
+      color: #4CAF50;
+    }
+    
+    .notification-icon.error {
+      color: #f44336;
+    }
+    
+    .notification-icon.info {
+      color: #2196F3;
+    }
+    
+    .notification-message {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    .notification-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--button-bg);
+      border: none;
+      border-radius: 8px;
+      color: var(--text-color);
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .notification-btn:hover {
+      background: var(--button-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Hidden download links container */
+    .hidden-links {
+      display: none;
+    }
+
+    footer { text-align: center; margin-top: 40px; font-size: 0.9em; color: #bbb; z-index: 2; }
+    .stars { position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; pointer-events: none; z-index: 1; }
+    .star { position: absolute; background: rgba(255,255,255,0.8); border-radius: 50%; animation: twinkle var(--anim-dur) ease-in-out infinite; }
+    @keyframes twinkle { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+    @media (max-width: 768px) { 
+      .grid-container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+      .download-modal, .modal { width: 95%; padding: 20px; }
+      .sort-dropdown {
+        right: 0;
+        left: auto;
+      }
+      .category-container {
+        gap: 8px;
+      }
+      .category-buttons {
+        gap: 8px;
+      }
+      .title-row {
+        gap: 6px;
+      }
+      .action-buttons {
+        gap: 5px;
+      }
+    }
+  </style>
+</head>
+<script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
+<script>linkvertise(1354486, {whitelist: ["gofile.io"], blacklist: []});</script>
+<body>
+<div class="stars" id="stars"></div>
+<header>
+<h1>Marketplace</h1>
+<div class="search-container">
+<div class="input-group">
+<div class="search-wrapper">
+<input id="searchInput" placeholder="Search..." type="text"/>
+<button><i class="fas fa-search"></i></button>
+</div>
+
+<!-- Action Buttons - NO OUTER BOX, just buttons in a row -->
+<div class="action-buttons">
+<button class="action-btn" id="requestBtn">
+<i class="fas fa-paper-plane"></i>
+<span>Request</span>
+</button>
+<button class="action-btn discord" id="discordBtn" title="Join Discord Server">
+<i class="fab fa-discord"></i>
+</button>
+<button class="action-btn" id="reportBtn">
+<i class="fas fa-flag"></i>
+<span>Report</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- Updated Category Container with Settings Button -->
+<div class="category-container">
+<div class="category-buttons">
+<button class="active" data-filter="all"><i class="fas fa-infinity" title="All"></i></button>
+<button data-filter="worlds"><i class="fas fa-globe" title="Worlds"></i></button>
+<button data-filter="addons"><i class="fas fa-puzzle-piece" title="Addons"></i></button>
+<button data-filter="mashups"><i class="fas fa-layer-group" title="Mashups"></i></button>
+<button data-filter="textures"><i class="fas fa-image" title="Textures"></i></button>
+<button data-filter="skins"><i class="fas fa-tshirt" title="Skins"></i></button>
+</div>
+<div class="settings-wrapper">
+<button class="settings-btn" id="settingsBtn">
+<i class="fas fa-sliders-h"></i>
+</button>
+<div class="sort-dropdown" id="sortDropdown">
+<div class="sort-option" data-sort="default">
+<i class="fas fa-random"></i>
+<span>Default</span>
+</div>
+<div class="sort-option" data-sort="recent">
+<i class="fas fa-clock"></i>
+<span>Recently Added</span>
+</div>
+<div class="sort-option" data-sort="name">
+<i class="fas fa-sort-alpha-down"></i>
+<span>Name (A-Z)</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="grid-container" id="itemContainer">
+<!-- ITEMS WILL BE ADDED HERE -->
+</main>
+
+<!-- Download Overlay -->
+<div class="overlay" id="downloadOverlay">
+<div class="download-modal">
+<div class="modal-header">
+<h3 class="modal-title" id="modalTitle">Item Title</h3>
+<button class="close-btn" id="closeModal"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-image">
+<img alt="Item Image" id="modalImage" src=""/>
+</div>
+<p class="modal-type" id="modalType">Type</p>
+<div class="download-links" id="downloadLinks">
+<!-- Download links will be dynamically added here -->
+</div>
+</div>
+</div>
+
+<!-- Request Overlay -->
+<div class="overlay" id="requestOverlay">
+<div class="modal">
+<div class="modal-header">
+<h3 class="modal-title">Request Content</h3>
+<button class="close-btn" id="closeRequestModal"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-text">
+<p>To request new content, please provide a valid Minecraft Marketplace link.</p>
+<p>Link must start with: <strong>https://www.minecraft.net/en-us/</strong></p>
+<p>We'll review your request and add it as soon as possible!</p>
+</div>
+<div class="form-container">
+<input type="text" id="requestLink" class="form-input" placeholder="Paste Minecraft Marketplace link here..."/>
+<button class="form-btn" id="sendRequestBtn">
+<i class="fas fa-paper-plane"></i>
+<span>Send Request</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- Report Overlay -->
+<div class="overlay" id="reportOverlay">
+<div class="modal">
+<div class="modal-header">
+<h3 class="modal-title">Report Issue</h3>
+<button class="close-btn" id="closeReportModal"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-text">
+<p>Found a broken link or incorrect content? Let us know!</p>
+<p>Please provide details about the issue and the content URL if possible.</p>
+</div>
+<div class="form-container">
+<input type="text" id="reportInput" class="form-input" placeholder="Describe the issue or paste content URL..."/>
+<button class="form-btn" id="sendReportBtn">
+<i class="fas fa-flag"></i>
+<span>Send Report</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- Notification Overlay -->
+<div class="overlay" id="notificationOverlay">
+<div class="modal notification-modal">
+<div class="notification-icon" id="notificationIcon">
+<i class="fas fa-info-circle"></i>
+</div>
+<p class="notification-message" id="notificationMessage">Notification message</p>
+<button class="notification-btn" id="closeNotification">OK</button>
+</div>
+</div>
+
+<!-- Hidden container with pre-loaded download links -->
+<div class="hidden-links" id="hiddenLinks">
+<!-- DOWNLOAD LINKS WILL BE ADDED HERE -->
+</div>
+<footer>© YashoFree</footer>
+<script>
+    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1454428886577188924/qOOuaPFVttB2Unq2YhHc-rOrrFOQzC3h2IKt1GSTZv8exiHhOFGjlX2stIGXQdSx0Y87';
+    const DISCORD_SERVER_URL = 'https://discord.gg/your-invite-link'; // Replace with your Discord invite link
+    let currentSort = 'default';
+    let itemsData = [];
+
+    // Stars background
+    function createStars() {
+      const container = document.getElementById('stars');
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < 50; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 2 + 1;
+        s.style.width = s.style.height = `${size}px`;
+        s.style.left = `${Math.random() * 100}%`;
+        s.style.top = `${Math.random() * 100}%`;
+        s.style.setProperty('--anim-dur', `${Math.random() * 3 + 2}s`);
+        frag.appendChild(s);
+      }
+      container.appendChild(frag);
+    }
+
+    // Load download counts from localStorage
+    function loadDownloadCounts() {
+      const items = document.querySelectorAll('.item');
+      itemsData = [];
+      
+      items.forEach((item, index) => {
+        const uuid = item.getAttribute('data-uuid');
+        const title = item.querySelector('h2').textContent;
+        const category = item.getAttribute('data-category');
+        const subtitle = item.querySelector('.subtitle').textContent;
+        const image = item.querySelector('img').src;
+        
+        // Get saved data from localStorage
+        const savedData = localStorage.getItem(`item_${uuid}`);
+        let downloadCount = 0;
+        let lastUpdated = new Date().toISOString().split('T')[0];
+        
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          downloadCount = parsed.downloadCount || 0;
+          lastUpdated = parsed.lastUpdated || lastUpdated;
+        }
+        
+        itemsData.push({
+          uuid,
+          title,
+          category,
+          subtitle,
+          image,
+          element: item,
+          downloadCount,
+          htmlIndex: index,
+          lastUpdated
+        });
+      });
+      
+      // Load current sort
+      const savedSort = localStorage.getItem('marketplace_sort');
+      if (savedSort) {
+        currentSort = savedSort;
+        updateSortUI();
+      }
+    }
+
+    // Save download count to localStorage
+    function saveDownloadCount(uuid, count) {
+      const itemData = {
+        downloadCount: count,
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+      localStorage.setItem(`item_${uuid}`, JSON.stringify(itemData));
+    }
+
+    // Save current sort
+    function saveCurrentSort() {
+      localStorage.setItem('marketplace_sort', currentSort);
+    }
+
+    // Increment download count
+    function incrementDownloadCount(uuid) {
+      const item = itemsData.find(item => item.uuid === uuid);
+      if (item) {
+        item.downloadCount++;
+        item.lastUpdated = new Date().toISOString().split('T')[0];
+        saveDownloadCount(uuid, item.downloadCount);
+        updateItemDisplay();
+      }
+    }
+
+    // Update item display with download counts
+    function updateItemDisplay() {
+      const showDownloadCount = currentSort === 'popularity';
+      
+      itemsData.forEach(item => {
+        // Find the title-row or create it
+        let titleRow = item.element.querySelector('.title-row');
+        if (!titleRow) {
+          const subtitle = item.element.querySelector('.subtitle');
+          if (subtitle) {
+            titleRow = document.createElement('div');
+            titleRow.className = 'title-row';
+            subtitle.parentNode.insertBefore(titleRow, subtitle);
+            titleRow.appendChild(subtitle);
+          }
+        }
+        
+        // Find or create download count element
+        let downloadCountElement = item.element.querySelector('.download-count');
+        if (!downloadCountElement && titleRow) {
+          downloadCountElement = document.createElement('div');
+          downloadCountElement.className = 'download-count';
+          titleRow.appendChild(downloadCountElement);
+        }
+        
+        if (downloadCountElement) {
+          downloadCountElement.innerHTML = `<i class="fas fa-download"></i> ${item.downloadCount}`;
+          if (showDownloadCount) {
+            downloadCountElement.classList.add('show');
+          } else {
+            downloadCountElement.classList.remove('show');
+          }
+        }
+      });
+    }
+
+    // Sort items based on selected option
+    function sortItems(items) {
+      const sorted = [...items];
+      
+      switch(currentSort) {
+        case 'popularity':
+          return sorted.sort((a, b) => b.downloadCount - a.downloadCount);
+        case 'recent':
+          // Higher HTML index = newer (appears later in code)
+          return sorted.sort((a, b) => b.htmlIndex - a.htmlIndex);
+        case 'name':
+          return sorted.sort((a, b) => a.title.localeCompare(b.title));
+        default:
+          // Default: Randomize like in market11.html
+          return sorted.sort(() => Math.random() - 0.5);
+      }
+    }
+
+    // Render items with current filter and sort
+    function renderItems() {
+      const container = document.getElementById('itemContainer');
+      const activeFilter = document.querySelector('.category-buttons button.active').dataset.filter;
+      
+      // Filter items
+      let filteredItems = itemsData;
+      if (activeFilter !== 'all') {
+        filteredItems = itemsData.filter(item => item.category === activeFilter);
+      }
+      
+      // Sort items
+      const sortedItems = sortItems(filteredItems);
+      
+      // Clear container
+      container.innerHTML = '';
+      
+      // Append sorted items
+      sortedItems.forEach(item => {
+        container.appendChild(item.element);
+      });
+      
+      // Update display with download counts
+      updateItemDisplay();
+    }
+
+    // Update sort UI
+    function updateSortUI() {
+      document.querySelectorAll('.sort-option').forEach(option => {
+        option.classList.remove('active');
+        if (option.dataset.sort === currentSort) {
+          option.classList.add('active');
+        }
+      });
+    }
+
+    createStars();
+
+    // Search filter
+    let searchTimeout;
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        document.querySelectorAll('.item').forEach(item => {
+          const title = item.querySelector('h2').textContent.toLowerCase();
+          item.style.display = title.includes(q) ? 'flex' : 'none';
+        });
+      }, 200);
+    });
+
+    // Category filter
+    document.querySelectorAll('.category-buttons button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active button
+        document.querySelectorAll('.category-buttons button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        renderItems();
+      });
+    });
+
+    // Settings button toggle
+    const settingsBtn = document.getElementById('settingsBtn');
+    const sortDropdown = document.getElementById('sortDropdown');
+    
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsBtn.classList.toggle('active');
+        sortDropdown.classList.toggle('active');
+      });
+    }
+
+    // Sort option selection
+    document.querySelectorAll('.sort-option').forEach(option => {
+      option.addEventListener('click', () => {
+        currentSort = option.dataset.sort;
+        updateSortUI();
+        saveCurrentSort();
+        renderItems();
+        
+        // Close dropdown
+        if (settingsBtn) settingsBtn.classList.remove('active');
+        if (sortDropdown) sortDropdown.classList.remove('active');
+      });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (sortDropdown && settingsBtn && !sortDropdown.contains(e.target) && !settingsBtn.contains(e.target)) {
+        settingsBtn.classList.remove('active');
+        sortDropdown.classList.remove('active');
+      }
+    });
+
+    // === Notification System ===
+    const notificationOverlay = document.getElementById('notificationOverlay');
+    const notificationIcon = document.getElementById('notificationIcon');
+    const notificationMessage = document.getElementById('notificationMessage');
+    const closeNotification = document.getElementById('closeNotification');
+
+    function showNotification(message, type = 'info') {
+      // Set message
+      notificationMessage.textContent = message;
+      
+      // Set icon and color based on type
+      notificationIcon.className = 'notification-icon';
+      
+      if (type === 'success') {
+        notificationIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        notificationIcon.classList.add('success');
+      } else if (type === 'error') {
+        notificationIcon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+        notificationIcon.classList.add('error');
+      } else {
+        notificationIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
+        notificationIcon.classList.add('info');
+      }
+      
+      // Show overlay
+      notificationOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      
+      // Auto close after 3 seconds for success messages
+      if (type === 'success') {
+        setTimeout(() => {
+          if (notificationOverlay.classList.contains('active')) {
+            notificationOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+          }
+        }, 3000);
+      }
+    }
+
+    // Close notification
+    closeNotification.addEventListener('click', () => {
+      notificationOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+
+    // Close notification with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && notificationOverlay.classList.contains('active')) {
+        notificationOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // Close notification when clicking outside
+    notificationOverlay.addEventListener('click', (e) => {
+      if (e.target === notificationOverlay) {
+        notificationOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // === Action Button Functionality ===
+    const requestBtn = document.getElementById('requestBtn');
+    const discordBtn = document.getElementById('discordBtn');
+    const reportBtn = document.getElementById('reportBtn');
+    
+    const requestOverlay = document.getElementById('requestOverlay');
+    const reportOverlay = document.getElementById('reportOverlay');
+    const downloadOverlay = document.getElementById('downloadOverlay');
+    
+    const closeRequestModal = document.getElementById('closeRequestModal');
+    const closeReportModal = document.getElementById('closeReportModal');
+    const closeModal = document.getElementById('closeModal');
+    
+    const sendRequestBtn = document.getElementById('sendRequestBtn');
+    const sendReportBtn = document.getElementById('sendReportBtn');
+    const requestLink = document.getElementById('requestLink');
+    const reportInput = document.getElementById('reportInput');
+
+    // Discord button - redirect to Discord server
+    discordBtn.addEventListener('click', () => {
+      window.open(DISCORD_SERVER_URL, '_blank');
+    });
+
+    // Request button - show request overlay
+    requestBtn.addEventListener('click', () => {
+      requestOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      requestLink.focus();
+    });
+
+    // Report button - show report overlay
+    reportBtn.addEventListener('click', () => {
+      reportOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      reportInput.focus();
+    });
+
+    // Close request overlay
+    closeRequestModal.addEventListener('click', () => {
+      requestOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+      requestLink.value = '';
+    });
+
+    // Close report overlay
+    closeReportModal.addEventListener('click', () => {
+      reportOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+      reportInput.value = '';
+    });
+
+    // Send request function
+    async function sendRequest(url, type) {
+      const prefix = 'https://www.minecraft.net/en-us/';
+      
+      if (type === 'request' && !url.startsWith(prefix)) {
+        showNotification(`Valid links must start with: ${prefix}`, 'error');
+        return false;
+      }
+      
+      if (!url) {
+        showNotification(`Please ${type === 'request' ? 'enter a link' : 'describe the issue'}`, 'error');
+        return false;
+      }
+      
+      try {
+        const btn = type === 'request' ? sendRequestBtn : sendReportBtn;
+        const originalText = btn.innerHTML;
+        
+        btn.disabled = true;
+        btn.classList.add('sending');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Sending...</span>';
+        
+        const content = type === 'request' ? `📥 REQUEST: ${url}` : `🚨 REPORT: ${url}`;
+        
+        const res = await fetch(DISCORD_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({content: content})
+        });
+        
+        if (!res.ok) throw new Error();
+        
+        showNotification(`${type === 'request' ? 'Request' : 'Report'} sent successfully!`, 'success');
+        
+        // Clear input and close modal
+        if (type === 'request') {
+          requestLink.value = '';
+          requestOverlay.classList.remove('active');
+        } else {
+          reportInput.value = '';
+          reportOverlay.classList.remove('active');
+        }
+        
+        return true;
+      } catch {
+        showNotification(`Failed to send ${type}`, 'error');
+        return false;
+      } finally {
+        const btn = type === 'request' ? sendRequestBtn : sendReportBtn;
+        btn.disabled = false;
+        btn.classList.remove('sending');
+        btn.innerHTML = type === 'request' 
+          ? '<i class="fas fa-paper-plane"></i><span>Send Request</span>'
+          : '<i class="fas fa-flag"></i><span>Send Report</span>';
+      }
+    }
+
+    // Send request button
+    sendRequestBtn.addEventListener('click', async () => {
+      const url = requestLink.value.trim();
+      await sendRequest(url, 'request');
+    });
+
+    // Send report button
+    sendReportBtn.addEventListener('click', async () => {
+      const text = reportInput.value.trim();
+      await sendRequest(text, 'report');
+    });
+
+    // Close overlays with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (requestOverlay.classList.contains('active')) {
+          requestOverlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+        if (reportOverlay.classList.contains('active')) {
+          reportOverlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+        if (downloadOverlay.classList.contains('active')) {
+          downloadOverlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+        if (notificationOverlay.classList.contains('active')) {
+          notificationOverlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      }
+    });
+
+    // Close overlays when clicking outside
+    [requestOverlay, reportOverlay, downloadOverlay, notificationOverlay].forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load data and setup
+      loadDownloadCounts();
+      renderItems();
+    });
+
+    // === Download Overlay Functionality ===
+    const modalTitle = document.getElementById('modalTitle');
+    const modalImage = document.getElementById('modalImage');
+    const modalType = document.getElementById('modalType');
+    const downloadLinks = document.getElementById('downloadLinks');
+    const hiddenLinks = document.getElementById('hiddenLinks');
+
+    // Open overlay when item is clicked
+    document.addEventListener('click', (e) => {
+      const item = e.target.closest('.item');
+      if (item && !e.target.closest('.download-count')) {
+        const title = item.querySelector('h2').textContent;
+        const subtitle = item.querySelector('.subtitle').textContent;
+        const imageSrc = item.querySelector('img').src;
+        const uuid = item.getAttribute('data-uuid');
+        
+        // Set modal content
+        modalTitle.textContent = title;
+        modalImage.src = imageSrc;
+        modalType.textContent = subtitle;
+        
+        // Clear previous links
+        downloadLinks.innerHTML = '';
+        
+        // Find and copy the pre-loaded links for this item
+        const itemLinksContainer = hiddenLinks.querySelector(`.item-links[data-uuid="${uuid}"]`);
+        if (itemLinksContainer) {
+          // Clone all the download links for this item
+          const links = itemLinksContainer.querySelectorAll('.download-link');
+          links.forEach(link => {
+            const clonedLink = link.cloneNode(true);
+            
+            // Add click event to track downloads
+            clonedLink.addEventListener('click', () => {
+              incrementDownloadCount(uuid);
+            });
+            
+            downloadLinks.appendChild(clonedLink);
+          });
+        }
+        
+        // Show overlay
+        downloadOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+
+    // Close download overlay
+    closeModal.addEventListener('click', () => {
+      downloadOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  </script>
+</body>
+</html>
